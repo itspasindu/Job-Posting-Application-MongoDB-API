@@ -70,7 +70,7 @@ async def get_company(company_id: str):
 async def get_jobs(job_id: str):
     job = await jobs_collection.find_one({"_id": ObjectId(job_id)})
     if not job:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, "job not found")
     job["_id"] = str(job["_id"])
     return job
 
@@ -79,7 +79,7 @@ async def get_jobs(job_id: str):
 async def get_applicant(applicant_id: str):
     applicant = await applicants_collection.find_one({"_id": ObjectId(applicant_id)})
     if not applicant:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, "applicant not found")
     applicant["_id"] = str(applicant["_id"])
     return applicant
 
@@ -91,7 +91,7 @@ async def update_company(company_id: str, Company: company):
         {"$set": Company.dict()}
     )
     if result.modified_count == 0:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, "company not found")
     updated = await companies_collection.find_one({"_id": ObjectId(company_id)})
     updated["_id"] = str(updated["_id"])
     return updated
