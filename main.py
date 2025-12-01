@@ -58,7 +58,7 @@ async def get_applicant():
     return applicants
 
 # read company by id
-@app.get("/company/company_id}", response_model=companyDB)
+@app.get("/company/{company_id}", response_model=companyDB)
 async def get_company(company_id: str):
     company = await collection.find_one({"_id": ObjectId(company_id)})
     if not company:
@@ -67,7 +67,7 @@ async def get_company(company_id: str):
     return company
 
 # read job posting by id
-@app.get("/jobs/job_id}", response_model=jobPostingDB)
+@app.get("/jobs/{job_id}", response_model=jobPostingDB)
 async def get_jobs(job_id: str):
     job = await collection.find_one({"_id": ObjectId(job_id)})
     if not job:
@@ -76,7 +76,7 @@ async def get_jobs(job_id: str):
     return job
 
 # read applicants by id
-@app.get("/applicants/candidate_id}", response_model=applicantsDB)
+@app.get("/applicants/{candidate_id}", response_model=applicantsDB)
 async def get_applicant(applicant_id: str):
     applicant = await collection.find_one({"_id": ObjectId(applicant_id)})
     if not applicant:
@@ -97,6 +97,32 @@ async def update_company(company_id: str, Company: company):
     updated["_id"] = str(updated["_id"])
     return updated
 
+# update job posting details
+@app.put("/jobs/{job_id}", response_model=jobPostingDB)
+async def update_job(job_id: str, Job: jobPosting):
+    result = await collection.update_one(
+        {"_id": ObjectId(job_id)},
+        {"$set": Job.dict()}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(404, "Job not found")
+    updated = await collection.find_one({"_id": ObjectId(job_id)})
+    updated["_id"] = str(updated["_id"])
+    return updated
+
+# Update applicant details
+@app.put("/applicants/{applicant_id}", response_model=applicantsDB)
+async def update_applicants(applicant_id: str, Applicants: applicants):
+    result = await collection.update_one(
+        {"_id": ObjectId(applicant_id)},
+        {"$set": Applicants.dict()}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(404, "Applicant not found")
+    updated = await collection.find_one({"_id": ObjectId(applicant_id)})
+    updated["_id"] = str(updated["_id"])
+    return updated
+
 # delete company details
 @app.delete("/company/{company_id}")
 async def delete_company(company_id: str):
@@ -104,3 +130,21 @@ async def delete_company(company_id: str):
     if result.deleted_count == 0:
         raise HTTPException(404, "company not found")
     return {"message": "company deleted successfully"}
+
+# Delete a job posting
+@app.delete("/jobs/{job_id}")
+async def delete_jobPosting(job_id: str):
+    result = await collection.delete_one({"_id": ObjectId(job_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Job not found")
+    return {"message": "Job deleted successfully"}
+
+# Delete an applicant
+@app.delete("/applicants/{applicant_id}")
+async def delete_applicants(applicant_id: str):
+    # Delete document from applicant collection
+    result = await collection.delete_one({"_id": ObjectId(applicant_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Applicant not found")
+    return {"message": "Applicant deleted successfully"}
+
